@@ -23,6 +23,7 @@ int main(void) {
     }
 
     int selected_cell_type = SAND;
+    int brush_size = 2;
 
     Uint64 start_time = SDL_GetPerformanceCounter();
 
@@ -46,6 +47,9 @@ int main(void) {
                         default: ;
                     }
                     break;
+                case SDL_EVENT_MOUSE_WHEEL:
+                    if (!(brush_size == 0 && event.wheel.integer_y < 0)) brush_size += event.wheel.integer_y;
+                    break;
                 default: ;
             }
         }
@@ -57,12 +61,16 @@ int main(void) {
         SDL_MouseButtonFlags buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
 
         if (buttons & SDL_BUTTON_LMASK) {  // left mouse button held
-            int x = (int)mouse_x;
-            int y = (int)mouse_y;
+            int mx = (int)mouse_x;
+            int my = (int)mouse_y;
 
-            if (y >= 0 && y < 600 && x >= 0 && x < 800) {
+            if (my >= 0 && my < 600 && mx >= 0 && mx < 800) {
                 struct Cell cell = {selected_cell_type};
-                next_cells[y][x] = cell;
+                for (int x = 0; x < brush_size; x++) {
+                    for (int y = 0; y < brush_size; y++) {
+                        next_cells[y+my][x+mx] = cell;
+                    }
+                }
             }
         }
 
@@ -101,7 +109,7 @@ int main(void) {
 
         if (elapsed_seconds > 0) {
             float fps = 1.0f / elapsed_seconds;
-            printf("\rFPS: %f", fps);
+            printf("\rFPS: %f | Brush size: %d | Selected cell: %d", fps, brush_size, selected_cell_type);
             fflush(stdout);
         }
     }
