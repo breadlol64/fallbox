@@ -12,7 +12,7 @@ struct Game init_game() {
         return game;
     }
 
-    game.window = SDL_CreateWindow("Fallbox 0.1.0", 800, 600, 0);
+    game.window = SDL_CreateWindow("Fallbox 0.2.0", 800, 600, 0);
     if (!game.window) {
         SDL_Log("Failed to create window: %s", SDL_GetError());
         SDL_Quit();

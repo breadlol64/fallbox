@@ -24,9 +24,12 @@ int main(void) {
 
     int selected_cell_type = SAND;
 
+    Uint64 start_time = SDL_GetPerformanceCounter();
+
     SDL_Event event;
     int running = 1;
     while (running) {
+        Uint64 current_frame_start = SDL_GetPerformanceCounter();
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_EVENT_QUIT:
@@ -92,6 +95,15 @@ int main(void) {
         SDL_RenderPresent(game.renderer);
 
         memcpy(cells, next_cells, sizeof(cells));
+
+        Uint64 current_frame_end = SDL_GetPerformanceCounter();
+        float elapsed_seconds = (float)(current_frame_end - current_frame_start) / (float)SDL_GetPerformanceFrequency();
+
+        if (elapsed_seconds > 0) {
+            float fps = 1.0f / elapsed_seconds;
+            printf("\rFPS: %f", fps);
+            fflush(stdout);
+        }
     }
 
     SDL_DestroyRenderer(game.renderer);
