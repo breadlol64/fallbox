@@ -11,12 +11,15 @@ int main(void) {
     }
 
     struct Cell cells[600][800] = {0};
+    struct Cell next_cells[600][800] = {0};
+
     struct Cell sand_cell = {SAND};
     struct Cell stone_cell = {STONE};
     struct Cell air_cell = {AIR};
+
     cells[300][400] = sand_cell;
     for (int x = 0; x < 400; x++) {
-        cells[500][200+x] = stone_cell;
+        next_cells[500][200+x] = stone_cell;
     }
 
     int selected_cell_type = SAND;
@@ -56,7 +59,7 @@ int main(void) {
 
             if (y >= 0 && y < 600 && x >= 0 && x < 800) {
                 struct Cell cell = {selected_cell_type};
-                cells[y][x] = cell;
+                next_cells[y][x] = cell;
             }
         }
 
@@ -69,14 +72,14 @@ int main(void) {
                         continue;
                     case SAND:
                         if (cells[y+1][x].type == AIR) {
-                            cells[y+1][x] = cell;
-                            cells[y][x] = air_cell;
+                            next_cells[y+1][x] = cell;
+                            next_cells[y][x] = air_cell;
                         } else if (cells[y+1][x+1].type == AIR) {
-                            cells[y+1][x+1] = cell;
-                            cells[y][x] = air_cell;
+                            next_cells[y+1][x+1] = cell;
+                            next_cells[y][x] = air_cell;
                         } else if (cells[y+1][x-1].type == AIR) {
-                            cells[y+1][x-1] = cell;
-                            cells[y][x] = air_cell;
+                            next_cells[y+1][x-1] = cell;
+                            next_cells[y][x] = air_cell;
                         }
                         break;
                     default: ;
@@ -87,6 +90,8 @@ int main(void) {
         }
 
         SDL_RenderPresent(game.renderer);
+
+        memcpy(cells, next_cells, sizeof(cells));
     }
 
     SDL_DestroyRenderer(game.renderer);
