@@ -54,9 +54,6 @@ int main(void) {
             }
         }
 
-        SDL_SetRenderDrawColor(game.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(game.renderer);
-
         float mouse_x, mouse_y;
         SDL_MouseButtonFlags buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
 
@@ -64,33 +61,42 @@ int main(void) {
             int mx = (int)mouse_x;
             int my = (int)mouse_y;
 
-            if (my >= 0 && my < 600 && mx >= 0 && mx < 800) {
-                struct Cell cell = {selected_cell_type};
-                for (int x = 0; x < brush_size; x++) {
-                    for (int y = 0; y < brush_size; y++) {
-                        next_cells[y+my][x+mx] = cell;
+            int half_brush = brush_size / 2;
+
+            for (int x = -half_brush; x < brush_size - half_brush; x++) {
+                for (int y = -half_brush; y < brush_size - half_brush; y++) {
+                    int cell_x = mx + x;
+                    int cell_y = my + y;
+
+                    if (cell_y >= 0 && cell_y < 600 && cell_x >= 0 && cell_x < 800) {
+                        struct Cell cell = {selected_cell_type};
+                        next_cells[cell_y][cell_x] = cell;
                     }
                 }
             }
         }
 
+        SDL_SetRenderDrawColor(game.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(game.renderer);
+
         for (int y = 599; y >= 0; y--) {
             for (int x = 0; x < 800; x++) {
                 struct Cell cell = cells[y][x];
-
                 switch (cell.type) {
                     case AIR:
                         continue;
                     case SAND:
-                        if (cells[y+1][x].type == AIR) {
-                            next_cells[y+1][x] = cell;
-                            next_cells[y][x] = air_cell;
-                        } else if (cells[y+1][x+1].type == AIR) {
-                            next_cells[y+1][x+1] = cell;
-                            next_cells[y][x] = air_cell;
-                        } else if (cells[y+1][x-1].type == AIR) {
-                            next_cells[y+1][x-1] = cell;
-                            next_cells[y][x] = air_cell;
+                        if (y + 1 < 600) {
+                            if (cells[y+1][x].type == AIR) {
+                                next_cells[y+1][x] = cell;
+                                next_cells[y][x] = air_cell;
+                            } else if (cells[y+1][x+1].type == AIR) {
+                                next_cells[y+1][x+1] = cell;
+                                next_cells[y][x] = air_cell;
+                            } else if (cells[y+1][x-1].type == AIR) {
+                                next_cells[y+1][x-1] = cell;
+                                next_cells[y][x] = air_cell;
+                            }
                         }
                         break;
                     default: ;
@@ -99,6 +105,7 @@ int main(void) {
                 draw_cell(game.renderer, x, y);
             }
         }
+
 
         SDL_RenderPresent(game.renderer);
 
